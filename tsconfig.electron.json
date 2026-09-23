@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "types": ["node"]
+  },
+  "include": ["electron/**/*.mjs", "electron/**/*.cjs", "electron/**/*.d.mts"]
+}

@@ -1,0 +1,72 @@
+/* Only the active task owns an animated layer. Text and controls stay above it. */
+.task-ambience-host{isolation:isolate;position:relative}
+.task-ambience-host>:not(.task-ambience){z-index:1}
+.task-ambience{position:absolute;inset:0;overflow:hidden;pointer-events:none;user-select:none;z-index:0;contain:paint}
+.task-ambience-scene{position:absolute;inset:0;display:block;overflow:hidden}
+.task-ambience .task-ambience-scene{opacity:.42}
+.ambience-field{display:block;position:absolute;pointer-events:none;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-direction:alternate}
+.ambience-reading-veil{position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 15%,transparent),color-mix(in srgb,var(--bg) 80%,transparent) 29%,color-mix(in srgb,var(--bg) 80%,transparent) 71%,color-mix(in srgb,var(--bg) 15%,transparent)),linear-gradient(180deg,color-mix(in srgb,var(--bg) 65%,transparent),transparent 18%,transparent 72%,var(--bg))}
+.task-ambience[data-paused=true] .ambience-field{animation-play-state:paused}
+
+/* Large gradient fields move as single compositor layers; no animated filters. */
+[data-background=aurora]{--ambience-a:#70b6a2;--ambience-b:#9d91be;--ambience-c:#bfd3a3}
+[data-background=aurora] .ambience-field{width:95%;height:100%;top:-14%;border-radius:45%;background:radial-gradient(ellipse at center,var(--ambience-a),transparent 67%);animation-name:ambience-aurora;animation-duration:36s}
+[data-background=aurora] .ambience-field-a{left:-49%;transform:rotate(-24deg)}
+[data-background=aurora] .ambience-field-b{right:-44%;top:5%;background:radial-gradient(ellipse at center,var(--ambience-b),transparent 68%);animation-delay:-18s;animation-duration:43s}
+[data-background=aurora] .ambience-field-c{left:-14%;top:48%;width:130%;height:70%;background:radial-gradient(ellipse at center,var(--ambience-c),transparent 67%);animation-delay:-11s;animation-duration:51s}
+
+[data-background=ocean]{--ambience-a:#74b4bf;--ambience-b:#849cbb;--ambience-c:#a7ced1}
+[data-background=ocean] .ambience-field{width:170%;height:76%;left:-35%;border-radius:44% 56% 48% 52%;background:linear-gradient(180deg,transparent,var(--ambience-a) 52%,transparent);animation-name:ambience-tide;animation-duration:34s;transform:rotate(-15deg)}
+[data-background=ocean] .ambience-field-a{top:-17%}
+[data-background=ocean] .ambience-field-b{top:38%;background:linear-gradient(180deg,transparent,var(--ambience-b) 46%,transparent);animation-delay:-21s;animation-duration:42s}
+[data-background=ocean] .ambience-field-c{top:63%;background:linear-gradient(180deg,transparent,var(--ambience-c) 48%,transparent);animation-delay:-10s;animation-duration:29s}
+
+[data-background=embers]{--ambience-a:#c78868;--ambience-b:#d6b379;--ambience-c:#ad6e54}
+[data-background=embers] .ambience-field-a{inset:20% -40% -50%;background:radial-gradient(ellipse at 40% 78%,var(--ambience-a),transparent 60%),radial-gradient(ellipse at 70% 85%,var(--ambience-b),transparent 50%);animation-name:ambience-glow;animation-duration:37s}
+[data-background=embers] .ambience-field-b,[data-background=embers] .ambience-field-c{inset:-20% -5%;background:radial-gradient(circle at 9% 71%,var(--ambience-c) 0 1.5px,transparent 3px),radial-gradient(circle at 24% 82%,var(--ambience-b) 0 2px,transparent 4px),radial-gradient(circle at 81% 57%,var(--ambience-c) 0 1px,transparent 3px),radial-gradient(circle at 92% 90%,var(--ambience-b) 0 2px,transparent 4px);animation-name:ambience-rise;animation-duration:32s}
+[data-background=embers] .ambience-field-c{transform:translateY(15%) scale(.8);animation-delay:-13s;animation-duration:44s;opacity:.7}
+
+[data-background=stars]{--ambience-a:#728792;--ambience-b:#bdac7f;--ambience-c:#8e9cac}
+[data-background=stars] .ambience-field{inset:-10%;animation-name:ambience-stars;animation-duration:110s}
+[data-background=stars] .ambience-field-a{background:radial-gradient(circle at 16% 23%,var(--ambience-a) 0 1px,transparent 1.6px),radial-gradient(circle at 85% 64%,var(--ambience-a) 0 1px,transparent 1.6px),radial-gradient(circle at 58% 91%,var(--ambience-c) 0 .7px,transparent 1.3px);background-size:197px 263px,283px 319px,337px 271px}
+[data-background=stars] .ambience-field-b{background:radial-gradient(circle at 73% 13%,var(--ambience-b) 0 1.3px,transparent 2px),radial-gradient(circle at 29% 72%,var(--ambience-b) 0 1.2px,transparent 2px);background-size:367px 421px,457px 337px;animation-delay:-57s;animation-duration:95s}
+[data-background=stars] .ambience-field-c{background:radial-gradient(ellipse at 95% 15%,color-mix(in srgb,var(--ambience-c) 50%,transparent),transparent 48%);animation-name:ambience-glow;animation-duration:47s}
+
+:root[data-theme=dark] [data-background=aurora]{--ambience-a:#397d70;--ambience-b:#68608f;--ambience-c:#526a44}
+:root[data-theme=dark] [data-background=ocean]{--ambience-a:#306f7c;--ambience-b:#445b81;--ambience-c:#477b80}
+:root[data-theme=dark] [data-background=embers]{--ambience-a:#a55733;--ambience-b:#b18440;--ambience-c:#d9955c}
+:root[data-theme=dark] [data-background=stars]{--ambience-a:#acc0c7;--ambience-b:#d4c798;--ambience-c:#748aa0}
+:root[data-theme=dark] .task-ambience .task-ambience-scene{opacity:.52}
+
+.ambience-chooser{border:0;padding:0;margin:22px 0 5px;min-width:0}
+.ambience-chooser legend{font-size:12px;font-weight:550;padding:0}
+.ambience-intro,.ambience-description,.ambience-motion-row p{font-size:12px;line-height:1.6;color:var(--muted)}
+.ambience-intro{margin:5px 0 12px}
+.ambience-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.ambience-option{position:relative;min-width:0;padding:4px 4px 7px;border:1px solid var(--line);border-radius:9px;cursor:pointer;background:var(--surface);transition:border-color .15s,background .15s}
+.ambience-option:hover{background:var(--hover)}
+.ambience-option.selected{border-color:var(--accent-ink);box-shadow:0 0 0 1px var(--accent-ink)}
+.ambience-option:has(input:focus-visible){outline:2px solid var(--accent-ink);outline-offset:4px}
+.ambience-option input{position:absolute;width:1px;height:1px;opacity:0}
+.ambience-preview{position:relative;display:flex;align-items:center;justify-content:center;height:55px;border-radius:5px;overflow:hidden;background:var(--bg);color:var(--muted);pointer-events:none}
+.ambience-preview .ambience-field{animation:none!important}
+.ambience-preview[data-background=stars] .task-ambience-scene{transform:scale(.4);transform-origin:0 0;width:250%;height:250%}
+.ambience-option-name{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;line-height:1.4;margin-top:7px;white-space:nowrap}
+.ambience-option-name svg{color:var(--accent-ink)}
+.ambience-description{min-height:38px;margin:10px 0 5px}
+.ambience-motion-row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.ambience-motion-row strong{display:block;font-size:12px;font-weight:500;margin-bottom:3px}
+.ambience-motion-row .toggle{flex-shrink:0}
+.ambience-control{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;color:var(--muted);overflow:hidden;flex-shrink:0}
+.ambience-control button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:27px;padding:4px 7px;font-size:11px}
+.ambience-control button:hover{background:var(--hover);color:var(--text)}
+.ambience-control-pause{border-left:1px solid var(--line)}
+.ambience-control button:focus-visible{outline-offset:-3px}
+@keyframes ambience-aurora{from{transform:translate3d(-3%,-5%,0) rotate(-24deg) scale(1)}to{transform:translate3d(9%,8%,0) rotate(7deg) scale(1.08)}}
+@keyframes ambience-tide{from{transform:translate3d(-4%,-8%,0) rotate(-15deg)}to{transform:translate3d(5%,10%,0) rotate(6deg)}}
+@keyframes ambience-glow{from{transform:translate3d(-3%,3%,0) scale(.94)}to{transform:translate3d(5%,-5%,0) scale(1.08)}}
+@keyframes ambience-rise{from{transform:translate3d(-1%,9%,0);opacity:.6}to{transform:translate3d(3%,-11%,0);opacity:1}}
+@keyframes ambience-stars{from{transform:translate3d(-2%,1%,0)}to{transform:translate3d(3%,-4%,0)}}
+@media(max-width:420px){.ambience-options{grid-template-columns:repeat(3,minmax(0,1fr))}.ambience-option-name{font-size:12px}}
+@media(max-width:1150px){.ambience-control-name>span{display:none}}
+@media(prefers-reduced-motion:reduce){.task-ambience .ambience-field{animation:none!important}.ambience-option{transition:none}}

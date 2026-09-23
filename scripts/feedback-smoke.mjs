@@ -1,0 +1,43 @@
+import { _electron as electron } from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import assert from 'node:assert/strict';
+import { Store } from '../electron/core.mjs';
+
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'haven-feedback-ui-'));
+const store = new Store(root);
+const first = store.create({ name: 'Pinned task', engine: 'codex', cwd: root, pinned: true });
+const second = store.create({ name: 'Second task', engine: 'claude', cwd: root });
+const third = store.create({ name: 'Third task', engine: 'codex', cwd: root });
+store.state.activeId = second.id; store.save();
+const launch = () => electron.launch({ args: ['.'], env: { ...process.env, HAVEN_TEST_MODE: '1', HAVEN_DATA_DIR: root }, cwd: process.cwd() });
+let app = await launch();
+try {
+  let page = await app.firstWindow();
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  const row = id => page.locator(`[data-task-id="${id}"]`);
+  await row(third.id).dragTo(row(second.id), { targetPosition: { x: 30, y: 4 } });
+  await page.waitForFunction(id => document.querySelectorAll('.session-row')[1]?.getAttribute('data-task-id') === id, third.id);
+  await row(third.id).focus(); await row(third.id).press('Alt+Meta+ArrowUp');
+  await page.waitForFunction(id => document.querySelectorAll('.session-row')[0]?.getAttribute('data-task-id') === id, third.id);
+  await page.keyboard.press('Meta+1');
+  await page.waitForFunction(async id => (await window.haven.invoke('state')).activeId === id, third.id);
+  assert.equal(await page.evaluate(async id => (await window.haven.invoke('state')).sessions.find(s => s.id === id).pinned, third.id), true);
+  await app.close(); app = await launch(); page = await app.firstWindow();
+  await page.waitForFunction(id => document.querySelector('.session-row')?.getAttribute('data-task-id') === id, third.id);
+  const snapshot = await page.evaluate(() => window.haven.invoke('state'));
+  snapshot.voice = { status: 'ready', shortcutListening: false, message: 'Test: event tap unavailable' };
+  snapshot.settings.voiceEnabled = true;
+  await app.evaluate(({ BrowserWindow }, state) => BrowserWindow.getAllWindows()[0].webContents.send('haven:state', state), snapshot);
+  await page.getByLabel('Voice needs attention', { exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Voice', exact: false }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Open Input Monitoring' }).waitFor();
+  await page.getByText('Shortcut listening: no', { exact: true }).waitFor();
+  await page.getByRole('combobox', { name: 'Dictation hold shortcut' }).selectOption('fn');
+  assert.equal(await page.evaluate(async () => (await window.haven.invoke('state')).settings.voiceShortcut), 'fn');
+  assert.equal(await page.evaluate(() => window.haven.invoke('permissions', { kind: 'input-monitoring' })), 'Privacy_ListenEvent');
+  await page.getByRole('button', { name: 'Close dialog' }).click();
+  assert.equal(errors.length, 0, errors.join('\n'));
+  console.log(JSON.stringify({ ok: true, tested: ['drag reorder', 'keyboard reorder across pin divider', 'numeric shortcut ordering', 'order survives restart'], data: root }));
+} finally { await app.close(); }

@@ -1,0 +1,30 @@
+# Dependencies and builds
+node_modules/
+dist/
+release/
+release-*/
+out/
+
+# Test and smoke output
+artifacts/
+coverage/
+*.log
+__pycache__/
+*.pyc
+
+# Local state and secrets
+.env*
+.backups/
+.protocol/
+*.p12
+*.pfx
+*.key
+*.pem
+*.crt
+*.cer
+*.keychain*
+
+# OS and editors
+.DS_Store
+.vscode/
+.idea/

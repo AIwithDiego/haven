@@ -1,0 +1,126 @@
+import { _electron as electron } from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import assert from 'node:assert/strict';
+import { Store } from '../electron/core.mjs';
+
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'haven-desktop-'));
+const store = new Store(root);
+const s = store.create({ name: 'A clearer everyday', engine: 'codex', cwd: root, profile: 'autonomous', color: '#558cc2' });
+store.add(s.id, 'user', 'Please turn these notes into a short email.\n\nKeep the paragraphs easy to copy.');
+store.add(s.id, 'assistant', 'Here is a version you can use:\n\n**Subject: A small update**\n\nHi team,\n\nThe new workspace is ready for a first look. We can review the details together tomorrow.\n\nThanks,\nAlex\n\n```js\nconst greeting = "Hello, Alex";\nconsole.log(greeting);\n```');
+store.state.activeId = null; store.save();
+fs.mkdirSync('artifacts', { recursive: true });
+const app = await electron.launch({ ...(process.env.HAVEN_APP_PATH ? { executablePath: process.env.HAVEN_APP_PATH, args: [] } : { args: ['.'] }), cwd: process.cwd(), env: { ...process.env, HAVEN_DATA_DIR: root, HAVEN_TEST_MODE: '1' }, timeout: 30000 });
+const page = await app.firstWindow(); const errors = [];
+page.on('pageerror', e => errors.push(e.message));
+await app.evaluate(async ({ clipboard, ClipboardItem }) => {
+  const saved = [];
+  for (const item of await clipboard.read()) {
+    const formats = {};
+    for (const type of item.types) formats[type] = await item.getType(type);
+    if (Object.keys(formats).length) saved.push(new ClipboardItem(formats));
+  }
+  globalThis.__havenSavedClipboard = saved;
+});
+try {
+  await page.getByRole('heading', { name: 'A little space. For your big ideas.' }).waitFor();
+  await page.screenshot({ path: 'artifacts/overview-light.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'New task', exact: false }).first().click();
+  await page.getByRole('textbox', { name: 'Task name' }).fill('A real shell');
+  await page.getByRole('button', { name: 'Terminal', exact: true }).click();
+  await page.getByRole('button', { name: 'Create task', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Task name' }).waitFor();
+  const terminalId = await page.evaluate(async () => (await window.haven.invoke('state')).activeId);
+  await page.evaluate(async id => window.haven.invoke('terminalInput', { id, data: 'printf "HAVEN_PTY_OK\\n"\r' }), terminalId);
+  await page.waitForFunction(async id => (await window.haven.invoke('terminalData', { id })).data.includes('HAVEN_PTY_OK'), terminalId);
+  await page.evaluate(async id => window.haven.invoke('stop', { id }), terminalId);
+  await page.waitForFunction(async id => (await window.haven.invoke('state')).sessions.find(s => s.id === id).status === 'stopped', terminalId);
+  await page.evaluate(async id => window.haven.invoke('activate', { id }), s.id);
+  await page.getByText('Hi team,', { exact: false }).first().waitFor();
+  await page.getByRole('button', { name: 'Task details and your messages' }).click();
+  await page.screenshot({ path: 'artifacts/conversation-light.png', animations: 'disabled' });
+  const response = page.locator('article.assistant'); await response.hover();
+  await response.getByRole('button', { name: 'Copy plain text', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Copied plain text' }).waitFor();
+  const text = await app.evaluate(({ clipboard }) => clipboard.readText());
+  assert.match(text, /Subject: A small update/); assert.doesNotMatch(text, /\*\*|```/); assert.match(text, /const greeting = "Hello, Alex";/);
+  assert.match(text, /Thanks,\nAlex/);
+  await response.getByRole('button', { name: 'More copy options' }).click();
+  await page.getByRole('menuitem', { name: 'Copy with formatting', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Copied with formatting' }).waitFor();
+  const html = await app.evaluate(async ({ clipboard }) => {
+    const items = await clipboard.read();
+    for (const item of items) if (item.types.includes('text/html')) return (await item.getType('text/html')).text();
+    return '';
+  });
+  assert.match(html, /<strong>Subject: A small update<\/strong>/); assert.match(html, /<pre/);
+  await response.getByRole('button', { name: 'More copy options' }).click();
+  await page.getByRole('menuitem', { name: 'Copy Markdown', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Copied Markdown' }).waitFor();
+  assert.match(await app.evaluate(({ clipboard }) => clipboard.readText()), /\*\*Subject: A small update\*\*/);
+  const attachmentId = await page.evaluate(async id => {
+    const canvas = document.createElement('canvas'); canvas.width = 600; canvas.height = 280;
+    const c = canvas.getContext('2d'); c.fillStyle = '#edece5'; c.fillRect(0, 0, 600, 280); c.fillStyle = '#325547'; c.font = '28px sans-serif'; c.fillText('A screenshot to annotate', 40, 80);
+    return window.haven.invoke('attach', { id, name: 'Test capture.png', data: canvas.toDataURL('image/png').split(',')[1] });
+  }, s.id);
+  await page.locator('.attachment-preview').click();
+  const canvas = page.getByLabel('Draw annotations on the screenshot');
+  await page.getByRole('button', { name: 'Done', exact: true }).waitFor();
+  const bounds = await canvas.boundingBox(); assert.ok(bounds);
+  await page.mouse.move(bounds.x + 20, bounds.y + 20); await page.mouse.down();
+  await page.mouse.move(bounds.x + 320, bounds.y + 100); await page.mouse.up();
+  await page.getByRole('button', { name: 'Label', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Annotation label' }).fill('Change this');
+  await canvas.click({ position: { x: 50, y: 160 } });
+  await page.getByRole('textbox', { name: 'Comment', exact: true }).fill('Please review the marked area.');
+  await page.screenshot({ path: 'artifacts/annotation-light.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  const attached = await page.evaluate(async ({id, aid}) => (await window.haven.invoke('state')).sessions.find(s => s.id === id).attachments.find(a => a.id === aid), {id:s.id, aid:attachmentId});
+  assert.equal(attached.comment, 'Please review the marked area.'); assert.ok(fs.existsSync(attached.path));
+  await page.getByRole('button', { name: 'Remove Test capture.png' }).click();
+  await page.waitForFunction(async id => (await window.haven.invoke('state')).sessions.find(s => s.id === id).attachments.length === 0, s.id);
+  assert.equal(fs.existsSync(attached.path), false);
+  await page.getByRole('textbox', { name: 'Message', exact: true }).fill('A draft with\n\nreal paragraphs.');
+  await page.evaluate(async id => window.haven.invoke('activate', { id }), terminalId);
+  await page.evaluate(async id => window.haven.invoke('activate', { id }), s.id);
+  assert.equal(await page.getByRole('textbox', { name: 'Message', exact: true }).inputValue(), 'A draft with\n\nreal paragraphs.');
+  const composer = page.getByRole('textbox', { name: 'Message', exact: true });
+  await composer.fill('Hello world.'); await composer.focus();
+  await composer.evaluate(el => el.setSelectionRange(6, 11));
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.send('haven:voice', { type: 'recording', clipId: 'voice-composer-check', insideApp: true }));
+  await page.waitForTimeout(100);
+  await app.evaluate(({ BrowserWindow }, id) => BrowserWindow.getAllWindows()[0].webContents.send('haven:voice', { type: 'transcript', clipId: 'voice-composer-check', insideApp: true, sessionId: id, text: 'Alex' }), s.id);
+  await page.waitForFunction(() => document.querySelector('textarea[data-composer]').value === 'Hello Alex.');
+  assert.equal((await page.evaluate(async id => (await window.haven.invoke('state')).sessions.find(s => s.id === id).messages.filter(m => m.role === 'user').length, s.id)), 1, 'Dictation must not submit a message');
+  const title = page.getByRole('textbox', { name: 'Task name', exact: true });
+  await title.focus(); await title.evaluate(el => el.setSelectionRange(2, 9));
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.send('haven:voice', { type: 'recording', clipId: 'voice-field-check', insideApp: true }));
+  await page.waitForTimeout(100);
+  await app.evaluate(({ BrowserWindow }, id) => BrowserWindow.getAllWindows()[0].webContents.send('haven:voice', { type: 'transcript', clipId: 'voice-field-check', insideApp: true, sessionId: id, text: 'calmer' }), s.id);
+  await page.waitForFunction(() => document.querySelector('input[aria-label="Task name"]').value === 'A calmer everyday').catch(async error => {
+    console.error('Test field state', await page.evaluate(() => ({ title: document.querySelector('input[aria-label="Task name"]').value, focused: document.activeElement?.getAttribute('aria-label'), draft: document.querySelector('textarea[data-composer]').value, notice: document.querySelector('[role="status"]')?.textContent })));
+    throw error;
+  });
+  await page.getByRole('button', { name: 'Task appearance' }).click();
+  await page.getByRole('combobox', { name: 'Reading font' }).selectOption('serif');
+  await page.getByRole('button', { name: 'Close dialog' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Dark' }).click();
+  await page.screenshot({ path: 'artifacts/settings-dark.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'Close dialog' }).click();
+  await page.screenshot({ path: 'artifacts/conversation-dark.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'Find in conversation' }).click();
+  await page.getByRole('textbox', { name: 'Find a message' }).fill('paragraphs');
+  await page.locator('.search-results button').first().click();
+  assert.equal(errors.length, 0, errors.join('\n'));
+  console.log(JSON.stringify({ ok: true, tested: ['desktop startup', 'task creation', 'real PTY I/O', 'stop terminal', 'message navigation', 'plain + rich + Markdown clipboard', 'screenshot annotation + comments', 'owned attachment deletion', 'draft isolation', 'dictation insertion into selected text (simulated transcript, no auto-send)', 'font settings', 'dark theme', 'conversation search'], artifacts: path.resolve('artifacts'), data: root }, null, 2));
+} finally {
+  await app.evaluate(async ({ clipboard }) => {
+    if (globalThis.__havenSavedClipboard?.length) await clipboard.write(globalThis.__havenSavedClipboard);
+    else clipboard.clear();
+    delete globalThis.__havenSavedClipboard;
+  }).catch(() => {});
+  await app.close();
+}
