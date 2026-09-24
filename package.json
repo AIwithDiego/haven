@@ -11,7 +11,7 @@
     "dev": "vite --host 127.0.0.1",
     "desktop": "electron .",
     "build": "tsc --noEmit && tsc --noEmit -p tsconfig.electron.json && vite build",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --import ./tests/setup-fake-cli.mjs --test tests/*.test.mjs",
     "package": "npm run build && electron-builder --mac dir && node scripts/sign-local.mjs",
     "signing:setup": "node scripts/setup-signing.mjs"
   },
