@@ -1,7 +1,7 @@
 # Local dictation dependencies, pinned to the versions Haven is tested with.
 # Install: python3 -m pip install -r helpers/requirements.txt
 openai-whisper==20250625
-torch==2.11.0
+torch==2.14.0
 numpy==2.4.3
 sounddevice==0.5.5
 pyobjc-core==12.1
