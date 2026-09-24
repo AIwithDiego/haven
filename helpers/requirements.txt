@@ -2,7 +2,7 @@
 # Install: python3 -m pip install -r helpers/requirements.txt
 openai-whisper==20250625
 torch==2.11.0
-numpy==2.4.3
+numpy==2.5.3
 sounddevice==0.5.5
 pyobjc-core==12.1
 pyobjc-framework-Cocoa==12.1
