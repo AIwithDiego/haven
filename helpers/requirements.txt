@@ -6,4 +6,4 @@ numpy==2.4.3
 sounddevice==0.5.5
 pyobjc-core==12.1
 pyobjc-framework-Cocoa==12.1
-pyobjc-framework-Quartz==12.1
+pyobjc-framework-Quartz==12.2.2
