@@ -12,7 +12,7 @@
 
 [![21 days from first commit to deleted. 13 security fixes before going public. 2.2 GB of memory and 60 to 80% of a CPU core while an agent waited on a tool. Beside it, Haven's approval card refusing Allow because 5,052 characters of a command are hidden.](docs/assets/cover.png)](#what-went-wrong)
 
-A case study. A calm macOS workspace for Claude Code, Codex and real terminals, side by side as named tasks. Built in Dublin with AI coding agents, first commit 21 September 2026, published here as 0.5.0 on 24 September, used every day, retired on 12 October. <!-- TODO(Diego): confirm the tools you built Haven with (Claude Code only, or Claude Code and Codex) and name them in this line. -->
+A case study. A calm macOS workspace for Claude Code, Codex and real terminals, side by side as named tasks. Built in Dublin with AI coding agents, first commit 21 September 2026, published here as 0.5.0 on 24 September, used every day, retired on 12 October.
 
 **[Why I deleted it](#what-went-wrong)** · [What it got right](#what-it-does) · [Run it yourself](#run-it-yourself)
 
@@ -102,18 +102,18 @@ One person and AI coding agents, three weeks. Before publishing, Haven went thro
 | 23 Sep | 0.5.0: Reader, profile, connections panel, usage meters, follow-ups. Security review: 10 fixes the same day, 3 more the next morning |
 | 24 Sep | [`9b454b1`](https://github.com/AIwithDiego/haven/commit/9b454b1) Published here as 0.5.0 with secret scanning, push protection and Dependabot on |
 | 24 Sep | [#11](https://github.com/AIwithDiego/haven/pull/11) Tests self-contained in CI (fake `claude` and `codex` on the PATH); Dependabot grouped. [#12](https://github.com/AIwithDiego/haven/pull/12) [#13](https://github.com/AIwithDiego/haven/pull/13) first grouped updates |
-| 29 Sep to 2 Oct | 0.7 and 0.8 (private): a ticket board for my AI assistant's work inside Haven, with runs, checks and reviews. Haven became where my client tickets lived |
+| 29 Sep to 2 Oct | 0.7 and 0.8 (private): a ticket board for my AI assistant's work inside Haven, with runs, checks and reviews. Haven became where my tickets lived |
 | 10 to 12 Oct | 0.9.0 in daily use; 0.10.0 built with release reviews, verified installers and the first performance fixes |
 | 11 Oct | Performance review of 0.9.0: 60 to 80% of a core and 2.2 GB in the main process |
 | 12 Oct | Retired. Tickets and decisions exported to plain files, the app and 5.6 GB of data, backups and builds moved to the Trash. 0.10.0 was never installed |
 
 ## What went wrong
 
-On 12 October, after a morning of a client ticket that wouldn't close, I wrote: "we built a big monster, it's just not helping me at all." I went back to the terminal that afternoon. Haven was supposed to organise my work. It ended up slowing it down. <!-- TODO(Diego): this quote is from your own message in Haven on 12 Oct 2026. Keep it, reword it, or cut it. -->
+On 12 October, after a morning on a ticket that wouldn't close, I admitted we had built something big that wasn't helping me. I went back to the terminal that afternoon. Haven was supposed to organise my work. It ended up slowing it down.
 
 | | |
 |---|---|
-| **I built my workflow into the app.** Versions 0.7 and 0.8 added a ticket board for my AI assistant's work, with runs, checks and reviews, and I made Haven the source of truth for client tickets. From then on, every change to how I worked was a change to the app, with a release to build, review and install. | Private (0.8 to 0.10, not published) |
+| **I built my workflow into the app.** Versions 0.7 and 0.8 added a ticket board for my AI assistant's work, with runs, checks and reviews, and I made Haven the source of truth for my tickets. From then on, every change to how I worked was a change to the app, with a release to build, review and install. | Private (0.8 to 0.10, not published) |
 | **The gates had no way out.** A ticket's run could only finish once nothing it had started was still running. The agent left a dev server and a local database up so I could test by hand, set to stop when the ticket closed. So the ticket couldn't close until the servers stopped, and the servers wouldn't stop until the ticket closed. Ticking "I've checked it" couldn't break the loop. | Private (0.8 to 0.10, not published) |
 | **Tested with two tasks, lived with 138.** The performance test streams into two tasks. My live app held 138 sessions and 25,007 messages (89 MB) in memory. Every Claude CLI event called `persist()` with no task id, so the whole state was republished; a 5-second heartbeat re-serialised every transcript. Result on 0.9.0: 60 to 80% of a core and 2.2 GB, even while the agent waited on a tool. The same pattern is in this 0.5.0 code. | [`workspace.mjs#L38-L43`](https://github.com/AIwithDiego/haven/blob/7709e12/electron/workspace.mjs#L38-L43) · [`transcripts.mjs#L27-L31`](https://github.com/AIwithDiego/haven/blob/7709e12/electron/transcripts.mjs#L27-L31) · [`performance.test.mjs`](https://github.com/AIwithDiego/haven/blob/7709e12/tests/performance.test.mjs) |
 | **Embedding the CLI meant rebuilding the terminal's extras.** On 21 September, sessions inside Haven didn't have tools my terminal sessions had (the claude.ai artifact tools, Grep, Glob), so some work had to go back to the terminal anyway. Each gap was fixable; together they were a second product to maintain. | Private (fixed in a later version) |
