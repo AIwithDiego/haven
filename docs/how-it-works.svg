@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 660" width="1200" height="660" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Haven: how it works</title>
+  <desc>A sandboxed React renderer talks to the Electron main process only through an allowlisted preload bridge. The main process owns every task, the approval gate, permission profiles, link checks and storage, and runs the installed Claude Code through the Agent SDK, Codex through its app-server, real zsh terminals through a PTY helper and local Whisper dictation as child processes. Marked in red: where it went wrong. Every event from the Claude CLI triggered a full republish of every session, and every save re-serialised them all, so with 138 sessions the main process sat at 60 to 80 percent of a CPU core and 2.2 GB of memory.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7a72"/></marker>
+    <style>
+      .card { fill: #fffdf8; stroke: #d9d3c4; stroke-width: 1.5; }
+      .zone { fill: #efeadf; stroke: #d9d3c4; stroke-width: 1.5; }
+      .step { font-size: 11.5px; font-weight: 700; letter-spacing: 1.2px; fill: #3f6f58; }
+      .h { font-size: 17px; font-weight: 700; fill: #22302a; }
+      .t { font-size: 13.5px; fill: #55635c; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; fill: #7a857f; }
+      .line { stroke: #6b7a72; stroke-width: 2; fill: none; }
+      .warn { fill: #fbeeea; stroke: #b5543f; stroke-width: 1.8; }
+      .wh { font-size: 14px; font-weight: 700; fill: #9a3f2c; }
+      .wt { font-size: 13px; fill: #7a3a2b; }
+    </style>
+  </defs>
+  <rect width="1200" height="660" rx="20" fill="#f7f4ec"/>
+  <text x="48" y="60" font-size="30" font-weight="800" fill="#22302a">haven.</text>
+  <text x="48" y="88" font-size="16" fill="#55635c">Claude Code, Codex and real terminals as named tasks. The main process owns everything; the UI owns nothing.</text>
+
+  <!-- Renderer -->
+  <rect class="card" x="48" y="128" width="230" height="226" rx="14"/>
+  <rect x="48" y="128" width="230" height="4" rx="2" fill="#5b8a72"/>
+  <text class="step" x="66" y="160">1 · RENDERER</text>
+  <text class="h" x="66" y="186">The calm UI</text>
+  <text class="t" x="66" y="212">Tasks, chats you can</text>
+  <text class="t" x="66" y="231">select and copy, the</text>
+  <text class="t" x="66" y="250">approval card, Reader,</text>
+  <text class="t" x="66" y="269">xterm.js terminals.</text>
+  <text class="mono" x="66" y="300">src/  React 19</text>
+  <text class="mono" x="66" y="320">sandbox, strict CSP</text>
+
+  <!-- Preload -->
+  <rect class="card" x="48" y="382" width="230" height="150" rx="14"/>
+  <rect x="48" y="382" width="230" height="4" rx="2" fill="#5b8a72"/>
+  <text class="step" x="66" y="414">2 · BRIDGE</text>
+  <text class="h" x="66" y="440">Allowlisted IPC</text>
+  <text class="t" x="66" y="466">Only named actions,</text>
+  <text class="t" x="66" y="485">only from Haven's frame.</text>
+  <text class="mono" x="66" y="512">electron/preload.cjs</text>
+  <path class="line" d="M163 354 L163 380" marker-end="url(#a)"/>
+
+  <!-- Main process zone -->
+  <rect class="zone" x="318" y="128" width="520" height="404" rx="16"/>
+  <text class="step" x="340" y="160">3 · MAIN PROCESS (owns all state and every child process)</text>
+  <path class="line" d="M278 457 L316 457" marker-end="url(#a)"/>
+
+  <rect class="card" x="340" y="178" width="232" height="104" rx="12"/>
+  <text class="h" x="358" y="206">Tasks</text>
+  <text class="t" x="358" y="230">Name, folder, agent or shell,</text>
+  <text class="t" x="358" y="249">follow-ups, timings.</text>
+  <text class="mono" x="358" y="271">workspace.mjs</text>
+
+  <rect class="card" x="588" y="178" width="232" height="104" rx="12"/>
+  <text class="h" x="606" y="206">Approval gate</text>
+  <text class="t" x="606" y="230">Shows what would run; Allow</text>
+  <text class="t" x="606" y="249">stays off if input is hidden.</text>
+  <text class="mono" x="606" y="271">approval.mjs, permissions.mjs</text>
+
+  <rect class="card" x="340" y="296" width="232" height="104" rx="12"/>
+  <text class="h" x="358" y="324">Links and files</text>
+  <text class="t" x="358" y="348">Ask before a link carries</text>
+  <text class="t" x="358" y="367">data or a file leaves the folder.</text>
+  <text class="mono" x="358" y="389">links.mjs</text>
+
+  <rect class="card" x="588" y="296" width="232" height="104" rx="12"/>
+  <text class="h" x="606" y="324">Storage</text>
+  <text class="t" x="606" y="348">Atomic writes, validated</text>
+  <text class="t" x="606" y="367">on load, private files.</text>
+  <text class="mono" x="606" y="389">persistence, transcripts.mjs</text>
+
+  <!-- Where it went wrong -->
+  <rect class="warn" x="340" y="414" width="480" height="104" rx="12"/>
+  <text class="wh" x="358" y="442">Where it went wrong</text>
+  <text class="wt" x="358" y="466">Every Claude CLI event triggered a full republish of all 138 sessions</text>
+  <text class="wt" x="358" y="485">(25,007 messages held in memory). Main process: 60 to 80% of a</text>
+  <text class="wt" x="358" y="504">core and 2.2 GB, even while the agent waited on a tool.</text>
+
+  <!-- Child processes -->
+  <text class="step" x="880" y="160">4 · CHILD PROCESSES</text>
+  <rect class="card" x="880" y="178" width="272" height="76" rx="12"/>
+  <text class="h" x="898" y="206">Claude Code</text>
+  <text class="mono" x="898" y="232">Agent SDK, your sign-in</text>
+  <rect class="card" x="880" y="266" width="272" height="76" rx="12"/>
+  <text class="h" x="898" y="294">Codex</text>
+  <text class="mono" x="898" y="320">codex app-server, JSON-RPC</text>
+  <rect class="card" x="880" y="354" width="272" height="76" rx="12"/>
+  <text class="h" x="898" y="382">Real zsh terminal</text>
+  <text class="mono" x="898" y="408">helpers/terminal.py, PTY</text>
+  <rect class="card" x="880" y="442" width="272" height="76" rx="12"/>
+  <text class="h" x="898" y="470">Local dictation</text>
+  <text class="mono" x="898" y="496">helpers/dictation.py, Whisper</text>
+  <path class="line" d="M838 216 L878 216" marker-end="url(#a)"/>
+  <path class="line" d="M838 304 L878 304" marker-end="url(#a)"/>
+  <path class="line" d="M838 392 L878 392" marker-end="url(#a)"/>
+  <path class="line" d="M838 480 L878 480" marker-end="url(#a)"/>
+
+  <text x="48" y="580" font-size="14" fill="#55635c">No Haven server, no API keys, no telemetry: Claude and Codex use the CLIs and sign-ins already on the Mac.</text>
+  <text x="48" y="606" font-size="14" fill="#55635c">Child processes get an allowlisted environment. Packaged builds turn off RunAsNode, NODE_OPTIONS and --inspect.</text>
+</svg>

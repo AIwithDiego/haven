@@ -1,183 +1,178 @@
 # Haven
 
-A calm macOS workspace for Claude Code, Codex and real terminals, side by side as named tasks.
+**I built a home for my coding agents. Then I deleted it.**
 
-![Haven overview: the task sidebar, companion picker and recent tasks](docs/screenshots/overview.png)
+[![Status](https://img.shields.io/badge/status-retired_12_Oct_2026-0c1a1c?style=for-the-badge&labelColor=0c1a1c&color=e3cd9c)](#what-went-wrong)
+[![Lifetime](https://img.shields.io/badge/first_commit_to_deleted-21_days-0c1a1c?style=for-the-badge&labelColor=0c1a1c&color=7fe6da)](#the-build)
+[![tests](https://img.shields.io/github/actions/workflow/status/AIwithDiego/haven/ci.yml?branch=main&style=for-the-badge&label=tests&labelColor=0c1a1c)](https://github.com/AIwithDiego/haven/actions/workflows/ci.yml)
+![macOS](https://img.shields.io/badge/macOS-Apple_Silicon-0c1a1c?style=for-the-badge&logo=apple&logoColor=7fe6da)
+![Electron](https://img.shields.io/badge/Electron-0c1a1c?style=for-the-badge&logo=electron&logoColor=7fe6da)
+![Claude Agent SDK](https://img.shields.io/badge/Claude-Agent_SDK-0c1a1c?style=for-the-badge&logo=anthropic&logoColor=7fe6da)
+[![MIT](https://img.shields.io/badge/licence-MIT-0c1a1c?style=for-the-badge&labelColor=0c1a1c)](LICENSE)
 
-## Why it exists
+[![21 days from first commit to deleted. 13 security fixes before going public. 2.2 GB of memory and 60 to 80% of a CPU core while an agent waited on a tool. Beside it, Haven's approval card refusing Allow because 5,052 characters of a command are hidden.](docs/assets/cover.png)](#what-went-wrong)
 
-I run five or more coding agents and shells at once. Terminal tabs made that hard to read, hard to copy from and hard to keep track of. Haven gives each piece of work its own task: a name, a folder, an agent or a shell, and a conversation you can actually read, select and copy.
+A case study. A calm macOS workspace for Claude Code, Codex and real terminals, side by side as named tasks. Built in Dublin with AI coding agents, first commit 21 September 2026, published here as 0.5.0 on 24 September, used every day, retired on 12 October.
 
-It drives the Claude and Codex CLIs you already have installed, with your existing sign-ins, skills and project instructions. Haven needs no API keys and runs no server of its own.
+**[Why I deleted it](#what-went-wrong)** · [What it got right](#what-it-does) · [Run it yourself](#run-it-yourself)
 
-## Features
+**Contents:** [The problem](#the-problem) · [Research](#research) · [What it does](#what-it-does) · [The build](#the-build) · [What went wrong](#what-went-wrong) · [What I learned](#what-i-learned) · [Run it yourself](#run-it-yourself)
 
-**Tasks**
-- Named tasks, each with a working folder and either Claude, Codex or a real zsh terminal.
-- Sidebar with pinning, drag to reorder, `⌘1` to `⌘9` switching, a "Needs you" shortcut to tasks waiting on an answer, and `⌘K` search across tasks and conversations.
-- Close, reopen, archive, restore and delete (with confirmation). Deletion only touches Haven's own data.
-- Task time: opened, finished, closed and archived timestamps, plus accumulated agent or terminal runtime.
-- Per-task colour, font, text size and an optional animated background. Light, dark and system themes; reduced-motion support.
-- Closing the window keeps tasks running; a menu-bar item brings it back. Quitting warns about active work.
+## The problem
 
-**Claude and Codex**
-- Claude runs through the Claude Agent SDK; Codex runs through its app-server protocol. Both keep their own sign-ins, settings and skills.
-- Per-task model and reasoning-effort switching, with models discovered from each installed CLI.
-- Permission profiles per task: your existing settings, full autonomy, or a **gated** Claude profile where every shell call, write and MCP call waits for your approval in Haven. Changes made mid-turn apply to the next turn.
-- Follow-up messages while an agent works: send into the running turn or queue for the next one. Queued messages survive a restart paused and are never re-sent automatically.
-- A `/` command picker. Haven's own commands (`/model`, `/effort`, `/status`, `/stop`, `/rename`, `/pin`, `/archive`, `/connections` and more) run locally; provider skills go through each provider's native dispatch.
-- Conversations resume the provider session on your next message after a restart.
-- One-click provider updates that refuse to run while that provider has active work.
+I run five or more coding agents and shells at once. In terminal tabs that gets hard fast:
 
-**Usage at a glance**
-- A context-window meter per task, from what each provider reports.
-- Account usage indicators for Claude and Codex plan windows, refreshed in the background and marked when stale or unavailable.
+- **Hard to read.** Long agent replies scroll past in a monospace wall, and tables and code blocks lose their shape.
+- **Hard to copy from.** Selecting a paragraph drags in prompt lines, box-drawing characters and wrapped whitespace.
+- **Hard to keep track of.** Tabs called `zsh` and `node` don't say which one is waiting on me, or which folder it's in.
+- **Hard to trust.** An approval prompt in a terminal can show a tool name and a cut-off command, and still ask "Allow?".
 
-**Connections panel**
-- See the MCP servers and tools a task can reach: status, endpoint, project reference and tool list. Credentials, headers and environment values are never passed to the UI.
+> The provider apps each host one agent. I wanted Claude, Codex and a real shell as equal tasks in one calm window, on my own Mac, with nothing in between.
 
-**Haven Reader and files**
-- Open Markdown, text, JSON, YAML, CSV and TSV files in a focused reader with contents, reading progress and adjustable type. CSV and TSV render as filterable tables.
-- Formatted, selectable messages. Copy as plain text, Markdown or rich text; code blocks and tables have their own copy buttons.
-- Paste or drop files, or capture a screen area or the Haven window into the composer, then annotate with boxes, arrows and labels before sending.
+## Research
 
-**Real terminals**
-- Terminal tasks are real PTY-backed zsh sessions rendered with xterm.js, so your aliases and scripts work as usual.
+**What already exists.** Before building past the first version I mapped the field (21 September 2026): Claude Code Desktop and the Codex app (free with the plans, one provider each), multi-agent orchestrators like Conductor, Emdash and Claude Squad, terminal-first hosts like Warp, cmux and Wave, and dictation apps like Wispr Flow and Superwhisper. Nobody combined SDK chats and a real terminal as equal tabs, with both Claude and Codex. Almost everybody had things Haven didn't: a git worktree per task, a diff panel, PRs from inside the app.
 
-**Local dictation**
-- Push-to-talk with right Option or Fn, or `⌘⇧Space` to toggle, using local Whisper models. No speech API; audio stays in memory.
-- Personal vocabulary and exact "when it hears this, use that" corrections.
-- Text goes into your draft and is never sent automatically.
+**Who it's for.** Me. One person, one Mac, daily use. The research ended with a decision: don't sell it, use it and show it.
 
-**Profile and shared folders**
-- Your name and photo on your messages and in the sidebar.
-- When several agent tasks share a folder, Haven watches file changes and gives the next message a short note of what changed. It's a heads-up, not file locking.
+**The limits we chose.** Local only: no Haven server, no API keys, no telemetry. It drives the `claude` and `codex` CLIs already installed, with their own sign-ins, skills and project settings. macOS on Apple Silicon only, self-signed, not notarized. And because it hands real shells and agents to a UI, the human stays in charge of what runs.
 
-## Screenshots
+**What I didn't build.**
+
+| Choice | Why | Trade-off |
+|---|---|---|
+| Drive the installed CLIs, not the APIs | Keeps my sign-ins, skills and settings; no keys to store | Every feature the CLI gives a terminal for free had to be rebuilt or wired through |
+| Electron, not a native Swift app | React UI, xterm.js and the Agent SDK in one language | A heavy main process; it became the bottleneck (see [What went wrong](#what-went-wrong)) |
+| No worktrees, diff panel or PRs | Git stays in the terminal and the agents | Missing what nearly every competitor treats as table stakes |
+| Local Whisper dictation | Audio never leaves the Mac | 1 GB of model held in memory |
+
+## What it does
+
+Each piece of work is a task: a name, a folder, and Claude, Codex or a real zsh terminal. Conversations are formatted, selectable and copyable. When an agent wants to run something, Haven shows exactly what would run before you allow it.
+
+| | What it is | Where |
+|---|---|---|
+| **Tasks** | Named tasks with a folder and an agent or shell; pinning, `⌘1` to `⌘9`, a "Needs you" shortcut, `⌘K` search, archive and restore | [`electron/workspace.mjs`](electron/workspace.mjs), [`src/App.tsx`](src/App.tsx) |
+| **Claude and Codex** | Claude through the Agent SDK, Codex through its app-server; per-task model, effort and permission profile; follow-ups while a turn runs | [`electron/agents.mjs`](electron/agents.mjs) |
+| **Approval card** | Shows the decisive input inline; if any of it is hidden, Allow stays off until you open it, enforced in the main process | [`electron/approval.mjs`](electron/approval.mjs) |
+| **Gated profile** | A `PreToolUse` hook on every tool call that allow rules can't skip; silent reads scoped to the task folder | [`electron/permissions.mjs`](electron/permissions.mjs) |
+| **Links and files** | Links that look like they carry data ask first and show the full URL; files outside the task folder ask first | [`electron/links.mjs`](electron/links.mjs) |
+| **Real terminals** | PTY-backed zsh rendered with xterm.js | [`helpers/terminal.py`](helpers/terminal.py) |
+| **Reader** | Markdown, JSON, YAML, CSV and TSV in a focused reader; CSV as filterable tables | [`src/MarkdownReader.tsx`](src/MarkdownReader.tsx) |
+| **Dictation** | Push-to-talk with local Whisper, weights checked against the published SHA256 | [`helpers/dictation.py`](helpers/dictation.py) |
+
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/approval-card-truncated-input.png" alt="The approval card for a shell command: the command shows 'echo ok' then a marker for 19,993 spaces, a red line says 5,052 characters are hidden, and Allow this action is greyed out until the full input is reviewed."></td>
+<td width="50%"><img src="docs/assets/codex-conversation-task-panel.png" alt="A Codex task called 'A clearer everyday': a formatted email reply with a code block and its own copy button, and a side panel with the task's times and the user's messages."></td>
+</tr>
+<tr>
+<td>The approval card. 5,052 characters hidden, so Allow stays off.</td>
+<td>A Codex conversation you can read and copy, with the task panel.</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/overview-companion-picker.png" alt="The overview screen: the task sidebar, a calm illustrated header, and three companions to start a task with: Claude, Codex and Terminal."></td>
+<td width="50%"><img src="docs/assets/connections-panel.png" alt="The connections panel listing the MCP servers and tools a task can reach, with status and endpoint, and no credentials shown."></td>
+</tr>
+<tr>
+<td>Overview: pick Claude, Codex or a terminal.</td>
+<td>Connections: what a task can reach, never its credentials.</td>
+</tr>
+</table>
+
+Screenshots come from the Playwright suites running the source build against throwaway data.
+
+![How Haven works: a sandboxed renderer talks to the main process only through an allowlisted bridge. The main process owns tasks, the approval gate, link checks and storage, and runs Claude Code, Codex, a zsh terminal and local dictation as child processes. Marked in red: every Claude CLI event triggered a full republish of all 138 sessions, so the main process sat at 60 to 80% of a core and 2.2 GB.](docs/how-it-works.svg)
+
+1. **Renderer** (`src/`): React 19, Radix, Tailwind v4, xterm.js and react-markdown, with `sandbox: true`, `contextIsolation: true` and a strict Content Security Policy. It never touches the filesystem or spawns anything.
+2. **Bridge** ([`electron/preload.cjs`](electron/preload.cjs)): allowlisted actions and events only. The main process accepts IPC only from Haven's own window and frame, and validates every action ([`electron/validation.mjs`](electron/validation.mjs)).
+3. **Main process** ([`electron/`](electron/)): owns all state and every child process. Folder trust comes before a project's hooks and `.mcp.json` servers load, because the SDK skips Claude Code's own trust prompt.
+4. **Child processes**: Claude Code through `@anthropic-ai/claude-agent-sdk`, `codex app-server` over JSON-RPC, a PTY helper and a dictation helper, each with an allowlisted environment. Packaged builds turn off the `RunAsNode`, `NODE_OPTIONS` and `--inspect` fuses, so another local process can't borrow Haven's microphone, screen and accessibility permissions.
+
+## The build
+
+One person and AI coding agents, three weeks. Before publishing, Haven went through a full security review: 13 fixes, from what the approval card shows to Electron fuses and links that could leak data. This repo is the clean public copy of 0.5.0 with those fixes in. Versions 0.6 to 0.10 stayed in a private working repo; they are where most of [What went wrong](#what-went-wrong) happened, and they are not published.
+
+| When | What landed |
+|---|---|
+| 21 Sep | First commit, 0.2.0. Pinned dependencies, task order, stable local signing so macOS stops dropping permissions. Competitor research the same day |
+| 23 Sep | 0.5.0: Reader, profile, connections panel, usage meters, follow-ups. Security review: 10 fixes the same day, 3 more the next morning |
+| 24 Sep | [`9b454b1`](https://github.com/AIwithDiego/haven/commit/9b454b1) Published here as 0.5.0 with secret scanning, push protection and Dependabot on |
+| 24 Sep | [#11](https://github.com/AIwithDiego/haven/pull/11) Tests self-contained in CI (fake `claude` and `codex` on the PATH); Dependabot grouped. [#12](https://github.com/AIwithDiego/haven/pull/12) [#13](https://github.com/AIwithDiego/haven/pull/13) first grouped updates |
+| 29 Sep to 2 Oct | 0.7 and 0.8 (private): a ticket board for my AI assistant's work inside Haven, with runs, checks and reviews. Haven became where my tickets lived |
+| 10 to 12 Oct | 0.9.0 in daily use; 0.10.0 built with release reviews, verified installers and the first performance fixes |
+| 11 Oct | Performance review of 0.9.0: 60 to 80% of a core and 2.2 GB in the main process |
+| 12 Oct | Retired. Tickets and decisions exported to plain files, the app and 5.6 GB of data, backups and builds moved to the Trash. 0.10.0 was never installed |
+
+## What went wrong
+
+On 12 October, after a morning on a ticket that wouldn't close, I admitted we had built something big that wasn't helping me. I went back to the terminal that afternoon. Haven was supposed to organise my work. It ended up slowing it down.
 
 | | |
-| --- | --- |
-| ![A Codex conversation with the task panel](docs/screenshots/conversation.png) | ![A gated approval card with a truncated command and Allow disabled](docs/screenshots/approval.png) |
-| ![Haven Reader showing a Markdown document](docs/screenshots/reader.png) | ![The connections panel listing MCP servers and tools](docs/screenshots/connections.png) |
-
-Screenshots come from the Playwright suites running against the source build with throwaway data.
-
-## Architecture
-
-```mermaid
-flowchart LR
-  subgraph Renderer["Renderer (src/, sandboxed)"]
-    UI["React 19 UI<br/>Reader, approval cards, xterm.js"]
-  end
-  subgraph Preload["Preload (electron/preload.cjs)"]
-    Bridge["Allowlisted actions<br/>and events"]
-  end
-  subgraph Main["Main process (electron/)"]
-    IPC["IPC handler<br/>sender + frame check,<br/>per-action validation"]
-    WS["workspace.mjs<br/>tasks, approvals, follow-ups"]
-    Store["core / persistence / transcripts<br/>atomic writes, validated on load"]
-    Perm["permissions.mjs + approval.mjs<br/>profiles, human gate"]
-    Links["links.mjs<br/>link and file confirmations"]
-  end
-  subgraph Providers["Child processes"]
-    Claude["Claude Code<br/>(Agent SDK)"]
-    Codex["codex app-server<br/>(JSON-RPC)"]
-    PTY["helpers/terminal.py<br/>(PTY)"]
-    Voice["helpers/dictation.py<br/>(local Whisper)"]
-  end
-  UI --> Bridge --> IPC --> WS
-  WS --> Store
-  WS --> Perm --> Claude
-  WS --> Codex
-  WS --> PTY
-  WS --> Voice
-  WS --> Links
-```
-
-- **Main process** owns all state and every child process. The renderer never touches the filesystem or spawns anything.
-- **Providers** (`electron/agents.mjs`): the Claude adapter wraps the installed Claude Code through `@anthropic-ai/claude-agent-sdk`, streaming events and routing approval callbacks to the UI. The Codex adapter speaks JSON-RPC to `codex app-server`. Child processes get an allowlisted environment, not your full login environment.
-- **Permissions** (`electron/permissions.mjs`): maps each profile to SDK options. The gated profile uses a `PreToolUse` hook as the human gate, so allow rules can't skip it.
-- **Validation** (`electron/validation.mjs` and each IPC action): everything loaded from disk and everything received over IPC is checked in the main process.
-- **Renderer** (`src/`): React 19 with Radix dialogs and menus, Tailwind v4, xterm.js and react-markdown. Streaming sends small per-task patches rather than full state.
-
-## Security
-
-Haven hands real shells and coding agents to a UI, so most of the design is about keeping the human in charge of what runs.
-
-**The approval card shows the decisive input.** In the gated profile, and for any approval Claude or Codex asks for, the card shows what would actually run: the shell command, the file path and change, or the MCP server, tool and arguments, inline and in monospace. Long whitespace runs appear as visible markers, so nothing hides past the edge. A Codex command's arguments are shell-quoted, so where one argument ends and the next begins is always visible, and the card names the folder it runs in. If an input is too long to show in full, the card says how many characters are hidden and **Allow stays off until you open the full input**. The main process enforces that, not just the button.
-
-**The gate can't be skipped.** The gated profile runs a `PreToolUse` hook on every tool call. User-level allow rules don't bypass it, MCP servers other than the one you chose for the task are denied without a prompt, and trust is keyed on the server's reported source, so a server named like another can't borrow its identity. Channel plugins are off unless you opt in with `HAVEN_GATED_CHANNELS`, and they are matched by exact plugin name.
-
-**File reads are scoped to the task folder.** Silent reads in the gated profile (`Read`, `Grep`, `Glob`) only run inside the task folder, with symlinks resolved to their real paths. Anything outside, such as `~/.ssh` or another project, goes through the approval card. The normal profile adds no allow rules of its own.
-
-**Folder trust before project hooks and MCP servers.** The SDK skips Claude Code's own workspace-trust prompt, so Haven has its own. Normal Claude tasks load a folder's project settings, hooks and `.mcp.json` servers only after you trust that folder. Trust is stored by real path, and changing it restarts the connection. Background model and usage discovery load user settings only.
-
-**Links and files ask first.** Links in agent replies open only on click and show their destination. A link that looks like it carries data asks first and shows the full URL, since an agent can put what it has read into a URL: a long query string, a long or encoded-looking path segment or subdomain, or a very long address. Local files outside the task folder ask first with the full real path, and secrets folders and key files get a stronger warning. The same applies to links inside a document open in Haven Reader, judged against the task folder that holds it. Executables and unknown file types are revealed in Finder, never launched.
-
-**Electron hardening.**
-- The renderer runs with `sandbox: true`, `contextIsolation: true` and `nodeIntegration: false`, behind a strict Content Security Policy (`script-src 'self'`, no `object-src`, no remote connections).
-- New windows are denied and navigation outside the app is blocked.
-- IPC requests are accepted only from Haven's own window and frame, and each action validates its arguments.
-- Packaged builds turn off the `RunAsNode`, `NODE_OPTIONS` and `--inspect` fuses and turn on ASAR integrity validation, so other local processes can't run code under Haven's macOS permissions. `scripts/signature-smoke.mjs` checks this.
-- The Reader has no raw HTML path, and embedded images can't leave the document's folder.
-
-**Dictation.** Whisper model files are checked against the SHA256 that Whisper publishes before they load, and the Python dependencies are pinned in `helpers/requirements.txt`.
-
-**Privacy.** No telemetry, no analytics and no Haven server. Workspace data lives in `~/Library/Application Support/Haven/` as private-permission files (not encrypted; use FileVault). Installation backups are created outside any repository. Claude and Codex still talk to their own services, as they do in a terminal. macOS asks for Microphone, Screen Recording, Accessibility and Input Monitoring only when you use the related feature.
-
-Found something? See [SECURITY.md](SECURITY.md).
+|---|---|
+| **I built my workflow into the app.** Versions 0.7 and 0.8 added a ticket board for my AI assistant's work, with runs, checks and reviews, and I made Haven the source of truth for my tickets. From then on, every change to how I worked was a change to the app, with a release to build, review and install. | Private (0.8 to 0.10, not published) |
+| **The gates had no way out.** A ticket's run could only finish once nothing it had started was still running. The agent left a dev server and a local database up so I could test by hand, set to stop when the ticket closed. So the ticket couldn't close until the servers stopped, and the servers wouldn't stop until the ticket closed. Ticking "I've checked it" couldn't break the loop. | Private (0.8 to 0.10, not published) |
+| **Tested with two tasks, lived with 138.** The performance test streams into two tasks. My live app held 138 sessions and 25,007 messages (89 MB) in memory. Every Claude CLI event called `persist()` with no task id, so the whole state was republished; a 5-second heartbeat re-serialised every transcript. Result on 0.9.0: 60 to 80% of a core and 2.2 GB, even while the agent waited on a tool. The same pattern is in this 0.5.0 code. | [`workspace.mjs#L38-L43`](https://github.com/AIwithDiego/haven/blob/7709e12/electron/workspace.mjs#L38-L43) · [`transcripts.mjs#L27-L31`](https://github.com/AIwithDiego/haven/blob/7709e12/electron/transcripts.mjs#L27-L31) · [`performance.test.mjs`](https://github.com/AIwithDiego/haven/blob/7709e12/tests/performance.test.mjs) |
+| **Embedding the CLI meant rebuilding the terminal's extras.** On 21 September, sessions inside Haven didn't have tools my terminal sessions had (the claude.ai artifact tools, Grep, Glob), so some work had to go back to the terminal anyway. Each gap was fixable; together they were a second product to maintain. | Private (fixed in a later version) |
+| **The release process outgrew the app.** By 0.10 a release had review reports bound to requirements, hash-verified installers and recorded handoffs. 0.10.0 was built and reviewed, and never installed. | Private (0.10.0) |
 
 ## What I learned
 
-Haven went through a full security review before this release. The fixes are in the code above; these are the lessons I'd carry into any agent host.
+- **A tool for my own workflow should be thinner than the workflow.** The terminal plus a ticket file per project and one live board does what Haven's board did, with nothing to install.
+- **A gate needs an exit the person can use.** Safety that can deadlock blocks the one person it protects. Every hard stop needs an override, and the override needs to be visible.
+- **Test at the size you'll live at.** Two tasks in a test said nothing about 138 in real use. Load lazily, persist only what changed, and measure with real data early.
+- **Embedding a CLI is a contract to keep up with it.** Every feature it ships to the terminal is a feature the host has to rebuild or wire through, on the CLI's schedule.
+- **The security work still holds.** An approval card should show the decisive input and refuse when it can't; "read-only" tools need a scope; links are an exfiltration channel. I'd carry them into any agent host.
+- **Make leaving cheap.** Haven kept its data in local files on my Mac, so retiring it took one afternoon: a script exported the tickets and decisions, and the app went to the Trash.
 
-1. **An approval gate is only as honest as what it shows.** A tool name plus a collapsed, silently cut details view is really just "Allow?". The approver should see the operative field inline, and any truncation should be loud and block approval.
-2. **"Read-only" isn't harmless in an agent.** Unscoped `Read`, `Grep` and `Glob` are silent access to every secret on disk. Least-privilege profiles should scope reads to the working folder.
-3. **Embedding a CLI can skip its safety prompts.** Driving Claude Code through the SDK bypasses its interactive trust dialog, so a host app that loads project settings needs its own folder-trust step, or a cloned repo's hooks run on first contact.
-4. **An Electron app holding macOS privacy grants needs its fuses flipped.** With `RunAsNode` on, any local process can borrow the app's microphone, screen and accessibility permissions.
-5. **Trust by provenance, not by name.** Matching MCP tools by a name prefix lets a lookalike server borrow trust. Match exactly and check where the server came from.
-6. **Links are an exfiltration channel.** An agent that has read something can put it in a URL. Show the destination and confirm when a link carries data.
-7. **Keep sensitive data out of working trees.** Backups of agent conversations inside a repository are one `git add -f` or one agent `Grep` away from leaking.
-8. **Sanitize screenshots, not just code.** A clean codebase can still ship a screenshot with private names in it. Retake them from the sanitized build.
+**What's next:** nothing for Haven. The code stays here as published, for the security model and the story.
 
-## Build and run
+## Ground rules
 
-Requirements: macOS on Apple Silicon, Node.js 25 (see `.nvmrc`), and the `claude` and/or `codex` CLIs installed and signed in. Dictation also needs Python 3 with the pinned packages (`python3 -m pip install -r helpers/requirements.txt`) and a Whisper model in `~/.cache/whisper`.
+- **No Haven server, no telemetry, no API keys.** Claude and Codex talk to their own services, as they do in a terminal.
+- **The human approves what runs.** In the gated profile every shell call, write and MCP call waits for you, and Allow stays off while part of the input is hidden.
+- **Reads stay in the task folder.** Anything outside goes through the approval card.
+- **Credentials never reach the UI.** The connections panel shows servers and tools, never headers, tokens or environment values.
+- **Not maintained.** macOS on Apple Silicon only, not notarized, no installer, no support promises.
 
-```sh
-npm ci
-npm run build     # typecheck renderer and main process, then build the renderer
-npm test          # unit tests
-npm run desktop   # launch the app from source
+## Run it yourself
+
+You need macOS on Apple Silicon, Node.js 25 (see `.nvmrc`), and the `claude` and/or `codex` CLIs installed and signed in.
+
+1. `git clone https://github.com/AIwithDiego/haven && cd haven && npm ci`
+2. `npm run build` (typecheck the renderer and the main process, then build the renderer)
+3. `npm test` (unit tests, with fake `claude` and `codex` on the PATH)
+4. `npm run desktop` to launch it from source
+5. Optional: `node scripts/check.mjs desktop approval permissions` runs the Playwright desktop suites against a throwaway data directory
+
+Dictation also needs Python 3 with `helpers/requirements.txt` and a Whisper model in `~/.cache/whisper`. Packaging with a stable self-signed identity: `npm run signing:setup`, then `npm run package` (see [`scripts/setup-signing.mjs`](scripts/setup-signing.mjs)).
+
+## Repo map
+
+```
+electron/              main process: tasks, agents, approvals, permissions, links, storage
+  workspace.mjs        tasks, follow-ups, the heartbeat that saves
+  agents.mjs           Claude (Agent SDK) and Codex (app-server) adapters
+  approval.mjs         what the approval card shows, and when Allow is refused
+  permissions.mjs      permission profiles and the PreToolUse gate
+  preload.cjs          the allowlisted bridge to the renderer
+src/                   React UI: tasks, chat, Reader, approval card, terminals
+helpers/               Python: PTY terminal and local Whisper dictation
+tests/                 unit tests (node --test), fake CLIs for CI
+scripts/               Playwright desktop suites, signing, smoke checks
+build/                 app icon and macOS entitlements used by packaging
+docs/                  README images; docs/src/ draws the cover
 ```
 
-`node scripts/check.mjs <suites>` runs the Playwright desktop suites against a throwaway data directory (`HAVEN_TEST_MODE=1`), for example `node scripts/check.mjs desktop approval permissions`. `scripts/provider-smoke.mjs`, `scripts/skill-smoke.mjs` and `scripts/followups-live-smoke.mjs` make small real calls to your provider accounts.
+## Credits
 
-### Optional configuration
+Built on [Electron](https://www.electronjs.org), the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript), Codex's app-server, [xterm.js](https://xtermjs.org), [React](https://react.dev), [Radix](https://www.radix-ui.com), [Tailwind CSS](https://tailwindcss.com), [react-markdown](https://github.com/remarkjs/react-markdown) and [OpenAI Whisper](https://github.com/openai/whisper). Security issues: [SECURITY.md](SECURITY.md). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-| Variable | Purpose |
-| --- | --- |
-| `HAVEN_PROJECTS_LAUNCHER` | A shell file with lines like `name "$HOME/path"`; each becomes a project chip in the new-task dialog. |
-| `HAVEN_GATED_MCP_CONFIG` | JSON file with an `mcpServers` object for the gated profile (default `~/.config/haven/gated-mcp.json`). Only project-scoped Supabase HTTP servers are offered, and only the one you pick is loaded. |
-| `HAVEN_GATED_CHANNELS` | Claude channel plugins to enable in the gated profile, e.g. `plugin:telegram@claude-plugins-official`. Off by default. Channel messages come from outside, so treat them as untrusted input; replies and tool calls stay gated. |
+## Licence
 
-### Packaging and signing
+MIT · Made in Dublin by [Diego Bauer](https://www.aiwithdiego.com) · [LinkedIn](https://www.linkedin.com/in/diego-bauer-domeyko/)
 
-macOS keeps dropping privacy permissions for ad-hoc signed apps, so the package step signs with a stable self-signed identity called **Haven Local**. Create it once, with its key kept outside the repository:
-
-```sh
-export HAVEN_SIGNING_DIR="/absolute/path/outside/the/repo"
-npm run signing:setup
-npm run package                 # builds, packages and signs release/mac-arm64/Haven.app
-node scripts/signature-smoke.mjs
-```
-
-After a successful import the setup deletes the plaintext private key, so the identity lives only in your login keychain (back it up). The certificate is trusted for code signing on this Mac only. The entitlements keep `disable-library-validation` because a self-signed identity has no Apple Team ID. This is not Developer ID signing or notarization.
-
-## Status
-
-A personal project that I use every day. macOS on Apple Silicon only, not notarized, no installer and no support promises.
-
-## License
-
-[MIT](LICENSE)
+Built by [AIwithDiego](https://www.aiwithdiego.com). Need something like this for your team? [Talk to me](https://www.aiwithdiego.com).

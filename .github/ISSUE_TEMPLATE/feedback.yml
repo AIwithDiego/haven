@@ -1,0 +1,11 @@
+name: Question or feedback
+description: A question about how it was built, what went wrong, or what you'd do differently.
+labels: ["feedback"]
+body:
+  - type: textarea
+    id: note
+    attributes:
+      label: Your question or feedback
+      description: Issues are public and stay public.
+    validations:
+      required: true

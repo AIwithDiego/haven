@@ -1,0 +1,34 @@
+<!doctype html>
+<!-- The README cover and social preview, 1280x640. Render: see docs/src/README.md -->
+<html><head><meta charset="utf-8">
+<style>
+:root { --night:#08130f; --line:#23392f; --milk:#eef3ec; --milk-soft:#9fb3a7; --chalk:#f6ecd6; --green:#4bd68f; --tomato:#ff7a63; }
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1280px; height: 640px; }
+body { background: radial-gradient(900px 600px at 30% 40%, #0f2a1e, var(--night)); color: var(--milk); font-family: -apple-system, "SF Pro Display", system-ui, sans-serif; display: grid; grid-template-columns: 590px 1fr; gap: 36px; padding: 60px 0 60px 64px; overflow: hidden; }
+.kicker { color: var(--green); font-weight: 700; font-size: 20px; letter-spacing: .4px; }
+h1 { font-size: 44px; line-height: 1.12; margin-top: 18px; color: var(--chalk); letter-spacing: -.5px; }
+.num { margin-top: 30px; display: grid; gap: 14px; }
+.row { display: flex; align-items: baseline; gap: 16px; }
+.row b { font-size: 44px; line-height: 1; min-width: 172px; text-align: right; letter-spacing: -1px; }
+.row span { font-size: 20px; color: var(--milk-soft); }
+.g b { color: var(--green); }
+.r b { color: var(--tomato); }
+.c b { color: var(--chalk); }
+.foot { margin-top: 28px; font-size: 17px; color: var(--milk-soft); }
+.shot { align-self: center; border-radius: 16px 0 0 16px; overflow: hidden; border: 1px solid var(--line); border-right: 0; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+.shot img { display: block; width: 880px; }
+</style></head>
+<body>
+  <div>
+    <div class="kicker">haven · a what-went-wrong case study</div>
+    <h1>I built a home for my coding agents. Then I deleted it.</h1>
+    <div class="num">
+      <div class="row c"><b>21 days</b><span>from first commit to deleted</span></div>
+      <div class="row g"><b>13</b><span>security fixes before going public</span></div>
+      <div class="row r"><b>2.2 GB</b><span>and 60 to 80% of a core, while waiting</span></div>
+    </div>
+    <p class="foot">macOS, Electron, Claude Agent SDK, Codex app-server.</p>
+  </div>
+  <div class="shot"><img src="../assets/approval-card-truncated-input.png" alt=""></div>
+</body></html>
