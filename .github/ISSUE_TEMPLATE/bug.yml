@@ -1,0 +1,19 @@
+name: Bug
+description: Something in the code doesn't do what the README or the code says it does.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Haven is a finished case study, not a maintained app. Bugs are still welcome, especially in the security model (approvals, permissions, links), and they help the write-up stay honest.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what happened instead. Issues are public; leave out real paths, names and tokens.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where in the code
+      description: File and line, if you know (optional).
